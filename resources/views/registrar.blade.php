@@ -25,6 +25,13 @@
         <label for="imagen">Imagen del usuario:</label>
         <input type="file" name="imagen" id="imagen">
     </div>
+    <div class="form-gorup">
+
+    <label for="email">Correo Electronico:</label>
+    <input id="email" type="email" class="form-control" name="email">
+    <span id="error_email"></span>
+    </div>
+
     <div class="form-group">
         <label for="password">Password del usuario:</label>
         <input id="password" type="password" name="password" class="form-control">
@@ -35,4 +42,54 @@
     </div>
     <input type="submit" class="btn btn-primary" value="Registrarse">    
 </form>
+<script>
+$(document).ready(function(){
+
+$('#email').blur(function(){
+    var error_email = '';
+    var email = $('#email').val();
+    var _token = $('input[name="_token"]').val();
+    var filter = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+    if($.trim(email).length > 0)
+    {
+        if(!filter.test(email))
+        {               
+            $('#error_email').html('<label  class=" text-warning"><i class="fas fa-times"></i>Favor de ingresar un correo valido </label>');
+            $('#email').addClass('has-error');
+            $('#register').attr('disabled', 'disabled');
+        }
+        else
+        {
+            $.ajax({
+                url:"{{ route('register.check') }}",
+                method:"POST",
+                data:{email:email, _token:_token},
+                success:function(result)
+                {
+                    if(result == 'unique')
+                    {
+                        $('#error_email').html('<label class=" text-success"><i class="fas fa-check"></i>Correo Valido </label>');
+                        $('#email').removeClass('has-error');
+                        $('#register').attr('disabled', false);
+                    }
+                    else
+                    {
+                        $('#error_email').html('<label class=" text-danger"><i class="fas fa-times"></i>Correo Ya Esta Registrado, por favor ingrese un correo valido</label>');
+                        $('#email').addClass('has-error');
+                        $('#register').attr('disabled', 'disabled');
+                    }
+                }
+            })
+        }
+    }
+    else
+    {
+        $('#error_email').html('<label class=" text-warning"><i class="fas fa-times"></i>correo requerido ingrese su correo porfavor</label>');
+        $('#email').addClass('has-error');
+        $('#register').attr('disabled', 'disabled');
+    }
+});
+
+});
+</script>
 @endsection
